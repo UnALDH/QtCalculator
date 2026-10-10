@@ -41,8 +41,8 @@ private:
     double m_firstOperand;      // 第一个操作数
     QString m_pendingOperator;  // 当前待运算的双目运算符
     bool m_waitingForOperand;   // 等待输入下一个操作数标记
-    bool m_hasCalculated;       // 是否完成单次计算标记
-    bool m_isError;             // 错误状态标记
+    bool m_hasCalculated;       // 是否刚完成计算标记
+    bool m_isError;             // 错误状态标记（如除数为零）
 
     // 核心业务处理方法
     void inputDigit(const QString &digit);
@@ -53,9 +53,13 @@ private:
     void clearAll();
     void clearEntry();
 
-    // 辅助工具方法
+    // 二元运算通用计算辅助
+    bool executePendingOperation(double secondOperand, double &result);
+
+    // 界面与异常提示辅助方法
     void updateDisplay(const QString &text);
     void updateExpression(const QString &text);
+    void triggerError(const QString &message);
     QString formatNumber(double value) const;
     void initUI();
     void connectSignals();
