@@ -26,6 +26,12 @@ void MainWindow::initUI()
 {
     updateDisplay("0");
     ui->labelExpression->clear();
+
+    // 遍历所有按钮，设置焦点策略为 NoFocus，确保键盘事件始终由 MainWindow 捕获
+    const auto buttons = findChildren<QPushButton*>();
+    for (QPushButton *btn : buttons) {
+        btn->setFocusPolicy(Qt::NoFocus);
+    }
 }
 
 void MainWindow::connectSignals()
@@ -402,5 +408,92 @@ QString MainWindow::formatNumber(double value) const
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    QMainWindow::keyPressEvent(event);
+    // 键盘按键与界面按钮映射，通过 animateClick() 实现：
+    // 1. 产生按钮被按下的视觉反馈动画
+    // 2. 触发对应按钮的 clicked 信号，完美复用鼠标点击槽函数逻辑
+    switch (event->key()) {
+    case Qt::Key_0:
+        ui->btn0->animateClick();
+        break;
+    case Qt::Key_1:
+        ui->btn1->animateClick();
+        break;
+    case Qt::Key_2:
+        ui->btn2->animateClick();
+        break;
+    case Qt::Key_3:
+        ui->btn3->animateClick();
+        break;
+    case Qt::Key_4:
+        ui->btn4->animateClick();
+        break;
+    case Qt::Key_5:
+        ui->btn5->animateClick();
+        break;
+    case Qt::Key_6:
+        ui->btn6->animateClick();
+        break;
+    case Qt::Key_7:
+        ui->btn7->animateClick();
+        break;
+    case Qt::Key_8:
+        ui->btn8->animateClick();
+        break;
+    case Qt::Key_9:
+        ui->btn9->animateClick();
+        break;
+    case Qt::Key_Period:
+    case Qt::Key_Comma:
+        ui->btnDot->animateClick();
+        break;
+    case Qt::Key_Plus:
+        ui->btnAdd->animateClick();
+        break;
+    case Qt::Key_Minus:
+        ui->btnSub->animateClick();
+        break;
+    case Qt::Key_Asterisk:
+        ui->btnMul->animateClick();
+        break;
+    case Qt::Key_Slash:
+        ui->btnDiv->animateClick();
+        break;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+    case Qt::Key_Equal:
+        ui->btnEqual->animateClick();
+        break;
+    case Qt::Key_Backspace:
+        ui->btnBackspace->animateClick();
+        break;
+    case Qt::Key_Escape:
+        ui->btnC->animateClick();
+        break;
+    case Qt::Key_Delete:
+        ui->btnCE->animateClick();
+        break;
+    case Qt::Key_Percent:
+        ui->btnPercent->animateClick();
+        break;
+    default:
+        // 处理部分通过 Shift 或字符输入的符号（例如 Shift+5 输入 %，Shift+= 输入 +）
+        if (event->text() == "+") {
+            ui->btnAdd->animateClick();
+        } else if (event->text() == "-") {
+            ui->btnSub->animateClick();
+        } else if (event->text() == "*") {
+            ui->btnMul->animateClick();
+        } else if (event->text() == "/") {
+            ui->btnDiv->animateClick();
+        } else if (event->text() == "=") {
+            ui->btnEqual->animateClick();
+        } else if (event->text() == "%") {
+            ui->btnPercent->animateClick();
+        } else if (event->text() == ".") {
+            ui->btnDot->animateClick();
+        } else {
+            QMainWindow::keyPressEvent(event);
+        }
+        break;
+    }
 }
