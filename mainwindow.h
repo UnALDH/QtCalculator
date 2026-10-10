@@ -25,9 +25,16 @@ private slots:
     void onDigitClicked();
     void onDotClicked();
 
-    // 运算符及计算槽函数
+    // 双目运算符及计算槽函数
     void onOperatorClicked();
     void onEqualClicked();
+
+    // 单目运算符槽函数
+    void onSquareClicked();
+    void onSqrtClicked();
+    void onReciprocalClicked();
+    void onSignClicked();
+    void onPercentClicked();
 
     // 编辑与清除槽函数
     void onBackspaceClicked();
@@ -52,6 +59,13 @@ private:
     void executeBackspace();
     void clearAll();
     void clearEntry();
+
+    // 单目运算方法
+    void executeSquare();
+    void executeSqrt();
+    void executeReciprocal();
+    void toggleSign();
+    void executePercent();
 
     // 二元运算通用计算辅助
     bool executePendingOperation(double secondOperand, double &result);

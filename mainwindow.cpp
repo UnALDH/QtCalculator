@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <cmath>
 #include <QtMath>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -50,6 +51,13 @@ void MainWindow::connectSignals()
     connect(ui->btnMul, &QPushButton::clicked, this, &MainWindow::onOperatorClicked);
     connect(ui->btnDiv, &QPushButton::clicked, this, &MainWindow::onOperatorClicked);
 
+    // 单目运算符
+    connect(ui->btnSquare, &QPushButton::clicked, this, &MainWindow::onSquareClicked);
+    connect(ui->btnSqrt, &QPushButton::clicked, this, &MainWindow::onSqrtClicked);
+    connect(ui->btnReciprocal, &QPushButton::clicked, this, &MainWindow::onReciprocalClicked);
+    connect(ui->btnSign, &QPushButton::clicked, this, &MainWindow::onSignClicked);
+    connect(ui->btnPercent, &QPushButton::clicked, this, &MainWindow::onPercentClicked);
+
     // 等号
     connect(ui->btnEqual, &QPushButton::clicked, this, &MainWindow::onEqualClicked);
 
@@ -85,6 +93,31 @@ void MainWindow::onEqualClicked()
     calculateEqual();
 }
 
+void MainWindow::onSquareClicked()
+{
+    executeSquare();
+}
+
+void MainWindow::onSqrtClicked()
+{
+    executeSqrt();
+}
+
+void MainWindow::onReciprocalClicked()
+{
+    executeReciprocal();
+}
+
+void MainWindow::onSignClicked()
+{
+    toggleSign();
+}
+
+void MainWindow::onPercentClicked()
+{
+    executePercent();
+}
+
 void MainWindow::onBackspaceClicked()
 {
     executeBackspace();
@@ -102,12 +135,10 @@ void MainWindow::onClearEntryClicked()
 
 void MainWindow::inputDigit(const QString &digit)
 {
-    // 若当前处于错误状态，按数字自动清除错误并开启新输入
     if (m_isError) {
         clearAll();
     }
 
-    // 若刚完成一轮等号计算，直接输入数字视作开启全新运算
     if (m_hasCalculated) {
         m_hasCalculated = false;
         m_pendingOperator.clear();
@@ -116,7 +147,6 @@ void MainWindow::inputDigit(const QString &digit)
         return;
     }
 
-    // 若正等待输入新操作数，替换显示并重置等待标记
     if (m_waitingForOperand) {
         updateDisplay(digit);
         m_waitingForOperand = false;
@@ -125,14 +155,12 @@ void MainWindow::inputDigit(const QString &digit)
 
     QString currentText = ui->labelDisplay->text();
 
-    // 避免首位无意义多零 (如 0005)
     if (currentText == "0") {
         if (digit == "0") {
             return;
         }
         currentText = digit;
     } else {
-        // 限制操作数长度，防止超出界面
         if (currentText.length() >= 16) {
             return;
         }
@@ -148,7 +176,6 @@ void MainWindow::inputDot()
         clearAll();
     }
 
-    // 若刚完成等号计算，按小数点重置为 "0."
     if (m_hasCalculated) {
         m_hasCalculated = false;
         m_pendingOperator.clear();
@@ -158,7 +185,6 @@ void MainWindow::inputDot()
         return;
     }
 
-    // 若等待新操作数时按小数点，自动补全为 "0."
     if (m_waitingForOperand) {
         updateDisplay("0.");
         m_waitingForOperand = false;
@@ -167,7 +193,6 @@ void MainWindow::inputDot()
 
     QString currentText = ui->labelDisplay->text();
 
-    // 防重复输入小数点：检查当前操作数是否已包含小数点
     if (!currentText.contains('.')) {
         currentText += ".";
         updateDisplay(currentText);
@@ -178,26 +203,23 @@ void MainWindow::inputOperator(const QString &op)
 {
     if (m_isError) return;
 
-    // 边界情况 1：连续操作符切换
-    // 若用户刚按完运算符（处于等待第二操作数状态），又改按了另一个运算符，则仅替换待运算操作符
+    // 连续操作符切换
     if (m_waitingForOperand && !m_hasCalculated) {
         m_pendingOperator = op;
         updateExpression(QString("%1 %2").arg(formatNumber(m_firstOperand)).arg(op));
         return;
     }
 
-    // 边界情况 2：连续运算 (例如 2 + 3 + 4)
-    // 若之前已有待运算的操作符，且用户已输入了第二操作数，则先执行前面的运算
+    // 连续运算 (例如 2 + 3 + 4)
     if (!m_pendingOperator.isEmpty() && !m_waitingForOperand) {
         double secondOperand = ui->labelDisplay->text().toDouble();
         double intermediateResult = 0.0;
         if (!executePendingOperation(secondOperand, intermediateResult)) {
-            return; // 发生除零等错误，已在 executePendingOperation 中处理
+            return;
         }
         m_firstOperand = intermediateResult;
         updateDisplay(formatNumber(m_firstOperand));
     } else {
-        // 正常首次按运算符或等号后继续运算
         m_firstOperand = ui->labelDisplay->text().toDouble();
     }
 
@@ -216,7 +238,6 @@ bool MainWindow::executePendingOperation(double secondOperand, double &result)
     } else if (m_pendingOperator == "×" || m_pendingOperator == "*") {
         result = m_firstOperand * secondOperand;
     } else if (m_pendingOperator == "÷" || m_pendingOperator == "/") {
-        // 边界情况 3：除以零检测
         if (qFuzzyIsNull(secondOperand) || secondOperand == 0.0) {
             triggerError("除数不能为零");
             return false;
@@ -232,7 +253,6 @@ void MainWindow::calculateEqual()
 {
     if (m_isError) return;
 
-    // 若没有待处理的操作符，不做计算
     if (m_pendingOperator.isEmpty()) {
         return;
     }
@@ -241,15 +261,13 @@ void MainWindow::calculateEqual()
     double result = 0.0;
 
     if (!executePendingOperation(secondOperand, result)) {
-        return; // 除以零错误已处理
+        return;
     }
 
-    // 更新表达式栏为完整算式：例如 "12 + 34 ="
     updateExpression(QString("%1 %2 %3 =").arg(formatNumber(m_firstOperand))
                                           .arg(m_pendingOperator)
                                           .arg(formatNumber(secondOperand)));
 
-    // 更新主显示区为计算结果
     updateDisplay(formatNumber(result));
 
     m_firstOperand = result;
@@ -258,15 +276,80 @@ void MainWindow::calculateEqual()
     m_hasCalculated = true;
 }
 
+void MainWindow::executeSquare()
+{
+    if (m_isError) return;
+    double val = ui->labelDisplay->text().toDouble();
+    double result = val * val;
+    updateExpression(QString("sqr(%1)").arg(formatNumber(val)));
+    updateDisplay(formatNumber(result));
+    m_waitingForOperand = true;
+}
+
+void MainWindow::executeSqrt()
+{
+    if (m_isError) return;
+    double val = ui->labelDisplay->text().toDouble();
+    if (val < 0) {
+        triggerError("无效输入");
+        return;
+    }
+    double result = std::sqrt(val);
+    updateExpression(QString("√(%1)").arg(formatNumber(val)));
+    updateDisplay(formatNumber(result));
+    m_waitingForOperand = true;
+}
+
+void MainWindow::executeReciprocal()
+{
+    if (m_isError) return;
+    double val = ui->labelDisplay->text().toDouble();
+    if (qFuzzyIsNull(val) || val == 0.0) {
+        triggerError("除数不能为零");
+        return;
+    }
+    double result = 1.0 / val;
+    updateExpression(QString("1/(%1)").arg(formatNumber(val)));
+    updateDisplay(formatNumber(result));
+    m_waitingForOperand = true;
+}
+
+void MainWindow::toggleSign()
+{
+    if (m_isError) return;
+    QString currentText = ui->labelDisplay->text();
+    if (currentText == "0" || currentText == "0.") return;
+
+    if (currentText.startsWith("-")) {
+        currentText.remove(0, 1);
+    } else {
+        currentText.prepend("-");
+    }
+    updateDisplay(currentText);
+}
+
+void MainWindow::executePercent()
+{
+    if (m_isError) return;
+    double currentVal = ui->labelDisplay->text().toDouble();
+    double percentVal = 0.0;
+
+    if (!m_pendingOperator.isEmpty() && (m_pendingOperator == "＋" || m_pendingOperator == "－")) {
+        percentVal = m_firstOperand * (currentVal / 100.0);
+    } else {
+        percentVal = currentVal / 100.0;
+    }
+
+    updateDisplay(formatNumber(percentVal));
+}
+
 void MainWindow::executeBackspace()
 {
-    // 错误状态、等待新输入、刚计算完结果时不允许退格
     if (m_isError || m_waitingForOperand || m_hasCalculated) return;
 
     QString currentText = ui->labelDisplay->text();
     currentText.chop(1);
 
-    // 退格至空字符或单一负号时，归零
     if (currentText.isEmpty() || currentText == "-" || currentText == "-0") {
         currentText = "0";
     }
@@ -314,7 +397,6 @@ void MainWindow::updateExpression(const QString &text)
 
 QString MainWindow::formatNumber(double value) const
 {
-    // 使用 'g' 格式，有效位数 12 位，自动去除末尾多余零
     return QString::number(value, 'g', 12);
 }
 
