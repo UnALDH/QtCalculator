@@ -1,0 +1,24 @@
+# Qt Creator files
+*.pro.user
+*.pro.user.*
+*.autosave
+
+# Build artifacts
+debug/
+release/
+*.o
+*.obj
+*.moc
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+*.qmake.stash
+Makefile
+Makefile.*
+*.pdb
+*.ilk
+*.idb
+
+# Output binaries
+*.exe
+*.dll
