@@ -32,6 +32,104 @@ void MainWindow::initUI()
     for (QPushButton *btn : buttons) {
         btn->setFocusPolicy(Qt::NoFocus);
     }
+
+    // 设置现代化流畅界面样式表 (Fluent Design / Windows 计算器风格)
+    QString qss = R"(
+        QMainWindow {
+            background-color: #f3f3f3;
+        }
+
+        /* 顶部表达式历史记录显示 */
+        QLabel#labelExpression {
+            color: #5c5c5c;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            padding-right: 12px;
+            background: transparent;
+        }
+
+        /* 主数据显示区 */
+        QLabel#labelDisplay {
+            color: #1b1b1b;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            font-size: 38px;
+            font-weight: bold;
+            padding-right: 10px;
+            background: transparent;
+        }
+
+        /* 通用按键基础样式 */
+        QPushButton {
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            border-radius: 6px;
+            border: 1px solid #e2e2e2;
+            font-size: 16px;
+            min-height: 44px;
+            outline: none;
+        }
+
+        /* 数字按键与小数点：清爽明亮纯白质感 */
+        QPushButton#btn0, QPushButton#btn1, QPushButton#btn2,
+        QPushButton#btn3, QPushButton#btn4, QPushButton#btn5,
+        QPushButton#btn6, QPushButton#btn7, QPushButton#btn8,
+        QPushButton#btn9, QPushButton#btnDot {
+            background-color: #ffffff;
+            color: #1a1a1a;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        QPushButton#btn0:hover, QPushButton#btn1:hover, QPushButton#btn2:hover,
+        QPushButton#btn3:hover, QPushButton#btn4:hover, QPushButton#btn5:hover,
+        QPushButton#btn6:hover, QPushButton#btn7:hover, QPushButton#btn8:hover,
+        QPushButton#btn9:hover, QPushButton#btnDot:hover {
+            background-color: #f7f7f7;
+            border-color: #d0d0d0;
+        }
+        QPushButton#btn0:pressed, QPushButton#btn1:pressed, QPushButton#btn2:pressed,
+        QPushButton#btn3:pressed, QPushButton#btn4:pressed, QPushButton#btn5:pressed,
+        QPushButton#btn6:pressed, QPushButton#btn7:pressed, QPushButton#btn8:pressed,
+        QPushButton#btn9:pressed, QPushButton#btnDot:pressed {
+            background-color: #ededed;
+        }
+
+        /* 运算符与功能键：柔和浅灰 */
+        QPushButton#btnAdd, QPushButton#btnSub, QPushButton#btnMul, QPushButton#btnDiv,
+        QPushButton#btnPercent, QPushButton#btnCE, QPushButton#btnC, QPushButton#btnBackspace,
+        QPushButton#btnReciprocal, QPushButton#btnSquare, QPushButton#btnSqrt, QPushButton#btnSign {
+            background-color: #f8f8f8;
+            color: #242424;
+            font-size: 16px;
+        }
+        QPushButton#btnAdd:hover, QPushButton#btnSub:hover, QPushButton#btnMul:hover, QPushButton#btnDiv:hover,
+        QPushButton#btnPercent:hover, QPushButton#btnCE:hover, QPushButton#btnC:hover, QPushButton#btnBackspace:hover,
+        QPushButton#btnReciprocal:hover, QPushButton#btnSquare:hover, QPushButton#btnSqrt:hover, QPushButton#btnSign:hover {
+            background-color: #eeeeee;
+            border-color: #d6d6d6;
+        }
+        QPushButton#btnAdd:pressed, QPushButton#btnSub:pressed, QPushButton#btnMul:pressed, QPushButton#btnDiv:pressed,
+        QPushButton#btnPercent:pressed, QPushButton#btnCE:pressed, QPushButton#btnC:pressed, QPushButton#btnBackspace:pressed,
+        QPushButton#btnReciprocal:pressed, QPushButton#btnSquare:pressed, QPushButton#btnSqrt:pressed, QPushButton#btnSign:pressed {
+            background-color: #e2e2e2;
+        }
+
+        /* 等号按键：醒目主题强调色 (Windows 蓝) */
+        QPushButton#btnEqual {
+            background-color: #0078d4;
+            color: #ffffff;
+            border: 1px solid #006cbd;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        QPushButton#btnEqual:hover {
+            background-color: #1084d8;
+            border-color: #0e7ac7;
+        }
+        QPushButton#btnEqual:pressed {
+            background-color: #0067b8;
+        }
+    )";
+    this->setStyleSheet(qss);
 }
 
 void MainWindow::connectSignals()
