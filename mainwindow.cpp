@@ -566,6 +566,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         ui->btnBackspace->animateClick();
         break;
     case Qt::Key_Escape:
+    case Qt::Key_C:
         ui->btnC->animateClick();
         break;
     case Qt::Key_Delete:
@@ -590,6 +591,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             ui->btnPercent->animateClick();
         } else if (event->text() == ".") {
             ui->btnDot->animateClick();
+        } else if (event->text().toLower() == "c") {
+            ui->btnC->animateClick();
         } else {
             QMainWindow::keyPressEvent(event);
         }
