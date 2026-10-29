@@ -24,6 +24,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::initUI()
 {
+    setWindowTitle(tr("计算器-赖俊达2024414290312"));
     updateDisplay("0");
     ui->labelExpression->clear();
 
